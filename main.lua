@@ -6,7 +6,7 @@ local BFont = require("BitmapFont")
 local myFont = BFont.new("resource/letras.png")
 
 local coordX, coordY = 100, display.contentHeight * 0.5
-local aString = myFont:newBitmapString(coordX,coordY, "HOLA font CHINGONA!!!" )
+local aString = myFont:newBitmapString(coordX,coordY, "Hello Cool Font!!!" )
 
 local function screenWasTouched(event)
 	if event.phase == "ended" then
