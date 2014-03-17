@@ -29,6 +29,7 @@ function SpecialBitmapFont.new(filename)
 
 	local options =
 	{
+		-- This is the size for 640x640 sprite sheet
 		frames = instance.buildFrames(64,64)
 	}
 	-- Create a sprite sheet
@@ -43,12 +44,14 @@ function SpecialBitmapFont.new(filename)
 		return display.newImage(self.spriteSheet, frameNum)
 	end
 
-	function instance:newBitmapString(x,y,myString)
+	function instance:newBitmapString(x,y,theString)
 		-- An object we are creating that contains all the images
 		-- This object can make visible/invisible and remove its objects
 		local imagesForString = {}
 		local cursorPosition = x
-
+		local rightOffset = 32
+		local myString = theString:upper()
+		
 		for i=1, #myString do
 			local letter = myString:sub(i,i)
 			local ascii = string.byte(letter)
@@ -58,8 +61,6 @@ function SpecialBitmapFont.new(filename)
 			letterImage.y = y
 
 			table.insert(imagesForString, letterImage)
-
-			local rightOffset = 32
 			cursorPosition = cursorPosition + (letterImage.contentWidth - rightOffset)
 		end
 
@@ -73,6 +74,40 @@ function SpecialBitmapFont.new(filename)
 			for i=1, #self do
 				self[i]:removeSelf()
 			end
+		end
+
+		function imagesForString:setPos(x,y)
+			local cursorPos = x
+			local rightOffset = 32
+			
+			for i=1, #self do
+				self[i].x = cursorPos
+				self[i].y = y
+				cursorPos = cursorPos + (self[i].contentWidth - rightOffset)
+			end
+		end
+
+		function imagesForString:recursiveFadeIn(currentIndex, timePerLetter)
+			if currentIndex > #self then
+				return
+			end
+
+			transition.to( self[currentIndex], {
+				time = timePerLetter,
+				alpha = 1,
+				onComplete = function(obj)
+					self:recursiveFadeIn(currentIndex + 1, timePerLetter)
+				end
+			} )
+		end	
+		
+		function imagesForString:fadeInAnimation(timePerLetter)
+			-- Start invisible
+			for i=1, #self do
+				self[i].alpha = 0
+			end
+
+			self:recursiveFadeIn(1, timePerLetter)
 		end
 
 		return imagesForString
